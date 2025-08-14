@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+    body {
+        font-family: 'Fira Code', 'Consolas', 'Menlo', 'Monaco', monospace;
+        margin: 0;
+        padding: 0;
+        background: #23272e;
+        color: #e3e6e8;
+    }
+
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    header {
+        background: #181a20;
+        color: #e3e6e8;
+        border-bottom: 1px solid #2c313c;
+        padding: 6px 15px;
+        box-sizing: border-box;
+        height: 44px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+    }
+
+    h1 {
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .todo-box {
+        padding: 6px 12px;
+        border: 1px solid #2c313c;
+        margin: 8px 0;
+        border-radius: 6px;
+        background: #282c34;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .checkbox-large,
+    .isCompleted {
+        width: 24px;
+        height: 24px;
+        accent-color: #007bff;
+        border-radius: 6px;
+        border: 2px solid #4f566b;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        transition: accent-color 0.2s;
+    }
+
+    #todos {
+        border: 2px solid #4f566b;
+        background: #23272e;
+        width: 70%;
+        margin-top: 20px;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn {
+        border-radius: 15px;
+        padding: 7px 18px;
+        font-size: 16px;
+        background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        font-family: inherit;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.10);
+    }
+
+    .btn:hover {
+        background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(0, 123, 255, 0.15);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        background: linear-gradient(90deg, #23272e 60%, #007bff 100%);
+        color: #e3e6e8;
+        border: 2px solid #4f566b;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 18px;
+        font-family: inherit;
+        width: 340px;
+        box-shadow: 0 4px 16px rgba(0, 123, 255, 0.15);
+        transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        border: 2px solid #007bff;
+        background: linear-gradient(90deg, #23272e 40%, #0056b3 100%);
+        box-shadow: 0 6px 24px rgba(0, 123, 255, 0.18);
+        outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        border: 2px solid #0056b3;
+        box-shadow: 0 4px 16px rgba(0, 123, 255, 0.15);
+        outline: none;
+    }
+
+    label {
+        color: #bfc7d5;
+        font-size: 15px;
+    }
+
+    span {
+        color: #e3e6e8;
+    }
+</style>
+
+<body>
+
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px;">
+        <h1>TODO</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <% if (!isAuth) { %>
+                <a href="/login" class="btn">Login</a>
+                <% } else { %>
+                    <span style="font-size: 18px; font-weight: bold;">Welcome, <%= name %></span>
+                    <button class="btn" id="logoutBtn" type="button">Logout</button>
+                    <% } %>
+        </div>
+    </header>
+
+    <main style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <form id="todoform"
+            style="margin-bottom: 20px; margin-top: 32px; display: flex; gap: 14px; align-items: center;">
+            <label for="todo" style="font-size: 16px;">Add Todo:</label>
+            <input type="text" name="todo" id="todo" required style="font-size: 16px; padding: 5px;">
+            <button type="submit" class="btn">Add</button>
+        </form>
+
+        <section id="todos">
+            <% if (todos) { %>
+                <% todos.forEach(element=> { %>
+                    <div class="todo-box" id="todo-<%= element.id %>">
+                        <label for="todo-<%= element.id %>" style="display: flex; gap: 5px; align-items: center;">
+                            <input class="isCompleted" type="checkbox" <% if (element.is_completed) { %> checked <% } %>
+                                id="<%= element.id %>" aria-label="Mark as completed">
+                                    <span style="<%= element.is_completed ? 'text-decoration: line-through;' : '' %>">
+                                        <%= element.text %>
+                                    </span>
+                        </label>
+                        <button class="btn delete_button" type="button"
+                            onclick="deleteTodo('<%= element.id %>')">Delete</button>
+                    </div>
+                    <% }) %>
+                        <% } %>
+        </section>
+    </main>
+
+    <script>
+
+        async function deleteTodo(id) {
+            try {
+                await fetch("/api/todo/delete", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id })
+                });
+
+                const todoEl = document.getElementById(`todo-${id}`);
+                if (todoEl) todoEl.remove();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        async function checkboxHandler() {
+            const id = this.id;
+            const status = this.checked;
+            try {
+                await fetch("/api/todo/update", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id, status })
+
+                })
+                const textSpan = this.closest("label").querySelector("span");
+                textSpan.style.textDecoration = status ? "line-through" : "none";
+            } catch (err) {
+                console.error(err);
+            }
+
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".isCompleted").forEach(cb => {
+                cb.addEventListener("change", checkboxHandler)
+            })
+        })
+
+        const form = document.getElementById("todoform")
+        const todocontainer = document.getElementById("todos")
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            // ...existing code...
+            const formData = new FormData(e.target);
+            const todoText = formData.get("todo");
+            const res = await fetch("/api/todo/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ todo: todoText })
+            });
+
+            const newTodo = await res.json();
+            const div = document.createElement("div");
+            div.id = `todo-${newTodo.id}`;
+            div.className = "todo-box";
+            div.innerHTML = `
+                <label for="todo-${newTodo.id}" style="display: flex; gap: 5px; align-items: center;">
+                    <input type="checkbox" class="isCompleted" id="${newTodo.id}" aria-label="Mark as completed">
+                    <span>${newTodo.text}</span>
+                </label>
+                <button class="btn" type="button" onclick="deleteTodo('${newTodo.id}')">Delete</button>
+            `;
+            todocontainer.prepend(div);
+            div.querySelector(".isCompleted").addEventListener("change", checkboxHandler);
+            form.reset();
+        });
+
+
+
+        // Logout logic
+        logoutBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            console.log("clicked");
+            try {
+                await fetch("/api/user/logout", { method: "POST" });
+                // optionally redirect
+                window.location.href = "/";
+            } catch (err) {
+                alert("Logout failed");
+            }
+        });
+
+    </script>
+    <footer
+        style="background: #181a20; color: #bfc7d5; text-align: center; padding: 18px 0; font-size: 15px; border-top: 1px solid #2c313c; margin-top: auto;">
+        <div>
+            <span>Todo App &copy; 2025 | Built for coders by coders | <a href="https://github.com/anumau011"
+                    style="color:#007bff; text-decoration:underline;">GitHub</a></span>
+            <br>
+            <span>"Code is like humor. When you have to explain it, it’s bad." – Cory House</span>
+        </div>
+    </footer>
+</body>
+
+</html>
+

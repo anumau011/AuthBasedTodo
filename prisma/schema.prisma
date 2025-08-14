@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique(map: "User_email_key")
+  password   String
+  created_at DateTime @default(now())
+
+  // One-to-many: one user can have many todos
+  todos      todo[]
+}
+
+model todo {
+  id           Int      @id @default(autoincrement())
+  text         String
+  user_id      Int
+  is_completed Boolean  @default(false)  // ✅ New field
+  created_at   DateTime @default(now())
+
+  // Many-to-one: each todo belongs to a single user
+  user         user     @relation(fields: [user_id], references: [id])
+  @@index([user_id], map: "Todo_user_id_fkey")
+}
