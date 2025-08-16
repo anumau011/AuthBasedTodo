@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 app.get("/", async (req, res) => {
   //   console.log(token,name)
   const token = req.cookies?.user_token;
-  console.log(token)
+  // console.log(token)
   let isAuth = false;
   let name = null;
   let todos = [];
@@ -49,7 +49,7 @@ app.get("/", async (req, res) => {
       res.render("index")
     }
   }
-  console.log(todos)
+  // console.log(todos)
   res.render("index", { isAuth, name,todos });
 });
 app.get('/favicon.ico', (req, res) => res.status(204));
@@ -62,6 +62,4 @@ app.get("/signup", (req, res) => {
 });
 
 app.use(router);
-app.listen(5000, () => {
-  console.log("server started...");
-});
+app.listen(process.env.PORT);
